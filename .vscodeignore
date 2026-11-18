@@ -1,0 +1,10 @@
+src/**
+node_modules/**
+**/*.map
+out/**/*.test.js
+tsconfig.json
+.gitignore
+*.vsix
+.github/**
+CONTRIBUTING.md
+SECURITY.md
