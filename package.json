@@ -2,7 +2,7 @@
   "name": "branch-tidy",
   "displayName": "Branch Tidy",
   "description": "See which local git branches are merged, unpushed, outdated or stale, clean them up safely and update them all from main.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "mtorres11",
   "license": "MIT",
   "author": {
@@ -51,11 +51,10 @@
   ],
   "contributes": {
     "views": {
-      "scm": [
+      "branchTidy": [
         {
           "id": "branchTidy.branches",
-          "name": "Branches",
-          "icon": "media/icon.svg"
+          "name": "Branches"
         }
       ]
     },
@@ -258,6 +257,15 @@
           "description": "A branch more than this many commits behind the base is outdated."
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "branchTidy",
+          "title": "Branch Tidy",
+          "icon": "media/icon.svg"
+        }
+      ]
     }
   },
   "scripts": {

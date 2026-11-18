@@ -1,7 +1,8 @@
 # Branch Tidy
 
-A **Branches** view in VS Code's Source Control sidebar that sorts your local git branches by
-what to do with them, so you can keep local branching clean.
+A **Branch Tidy** panel (its own icon in the Activity Bar) that sorts your local git branches by
+what to do with them, so you can keep local branching clean. Right-click the icon → **Move To →
+Secondary Side Bar** to keep it on the right.
 
 Created by **Marco Torres C** · <https://github.com/mtorres11/branch-tidy>
 
