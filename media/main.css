@@ -61,8 +61,11 @@ button { font: inherit; color: inherit; }
 .ghead .n { font-weight: 500; }
 .branch { border-left: 2px solid transparent; }
 .branch.current { border-left-color: var(--vscode-focusBorder); }
-.row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 0 8px; align-items: start; padding: 5px var(--row-pad) 5px 10px; cursor: pointer; }
+/* Tree row: twisty | status dot | name, facts, latest commit | ⋯ */
+.row { display: grid; grid-template-columns: 12px 8px minmax(0, 1fr) auto; gap: 0 6px; align-items: start; padding: 5px var(--row-pad) 5px 14px; cursor: pointer; }
+.row:not([aria-expanded]) { cursor: default; }
 .row:hover, .branch.open > .row { background: var(--vscode-list-hoverBackground); }
+.twisty { color: var(--vscode-icon-foreground, var(--vscode-foreground)); font-size: 0.9em; line-height: 18px; text-align: center; }
 .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; background: var(--c); }
 .main { min-width: 0; display: grid; gap: 2px; }
 .line1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
@@ -95,12 +98,20 @@ button { font: inherit; color: inherit; }
 .row:hover .more, .more:focus-visible, .more.active, .top .more { opacity: 1; }
 .more:hover, .more.active { background: var(--vscode-toolbar-hoverBackground); }
 
-.commits { margin: 0; padding: 2px var(--row-pad) 8px 30px; list-style: none; display: grid; gap: 2px; font-size: 0.85em; }
-.commits li { display: flex; gap: 8px; min-width: 0; }
-.commits code { font-family: var(--mono); color: var(--vscode-textLink-foreground); flex: none; }
-.commits .subj { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
-.commits .when { color: var(--vscode-descriptionForeground); flex: none; }
-div.commits { display: block; }
+/* Latest commit line, and the commit tree rows under an open branch (same hash/subject/age layout). */
+.latest, .commits li { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: 0.85em; }
+.latest code, .commits code { font-family: var(--mono); color: var(--vscode-textLink-foreground); flex: none; }
+.latest .subj, .commits .subj { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.latest .when, .commits .when { color: var(--vscode-descriptionForeground); flex: none; font-variant-numeric: tabular-nums; }
+.commits {
+  list-style: none; display: grid; gap: 3px; margin: 0 var(--row-pad) 6px 34px; padding: 3px 0 3px 12px;
+  border-left: 1px solid var(--vscode-tree-indentGuidesStroke, var(--vscode-panel-border));
+}
+.commits .node {
+  width: 7px; height: 7px; border-radius: 50%; flex: none; margin-left: -16px;
+  border: 1px solid var(--vscode-descriptionForeground); background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+}
+div.commits { font-size: 0.85em; }
 .empty { padding: 16px var(--row-pad); }
 
 /* ---------- floating menu ---------- */

@@ -14,8 +14,9 @@ export interface Branch {
   /** Commits not on the base branch / commits of the base branch not on this one. */
   ahead: number;
   behind: number;
-  /** Seconds since the epoch of the last commit. */
+  /** Seconds since the epoch of the last commit, and its subject line. */
   committedAt: number;
+  lastSubject: string;
   current: boolean;
   /** Checked out in another worktree (path), "" when not. */
   otherWorktree: string;
@@ -133,9 +134,10 @@ export const FOR_EACH_REF_FORMAT = [
   "%(committerdate:unix)",
   "%(HEAD)",
   "%(worktreepath)",
+  "%(contents:subject)",
 ].join("%00");
 
-export type RefRow = Pick<Branch, "name" | "sha" | "upstream" | "upstreamGone" | "committedAt" | "current"> & { worktree: string };
+export type RefRow = Pick<Branch, "name" | "sha" | "upstream" | "upstreamGone" | "committedAt" | "lastSubject" | "current"> & { worktree: string };
 
 /** Parses `git for-each-ref refs/heads --format=<FOR_EACH_REF_FORMAT>`. */
 export function parseRefs(stdout: string): RefRow[] {
@@ -143,13 +145,14 @@ export function parseRefs(stdout: string): RefRow[] {
     .split("\n")
     .filter(Boolean)
     .map((line) => {
-      const [name, sha, upstream, track, date, head, worktree] = line.split("\0");
+      const [name, sha, upstream, track, date, head, worktree, subject] = line.split("\0");
       return {
         name,
         sha,
         upstream,
         upstreamGone: track === "[gone]",
         committedAt: Number(date),
+        lastSubject: subject ?? "",
         current: head === "*",
         worktree,
       };

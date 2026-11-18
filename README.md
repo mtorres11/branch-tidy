@@ -22,9 +22,10 @@ Created by **Marco Torres C** · <https://github.com/mtorres11/branch-tidy>
 ```
 
 Each branch shows a coloured status dot and chip, a **behind | ahead** bar against the base
-(yellow behind, blue ahead), the age of the last commit, how many commits are **not pushed** to
-any remote, stashes made on the branch, and whether it is open in another worktree. Click a
-branch to see its own commits; hover for its upstream and last commit.
+(yellow behind, blue ahead), **how many commits** it has that aren't on the base and how far it
+is behind, how many commits are **not pushed** to any remote, stashes made on the branch, whether
+it is open in another worktree, and its **latest commit** (hash, message, age). Branches with
+commits of their own have a ▸ twisty: open it to see those commits as tree rows.
 
 At the top: a search box, a sort (last commit, name, most behind, most ahead, most unpushed) and
 status chips with counts; click a chip to show only that status. Filters are kept while you work.

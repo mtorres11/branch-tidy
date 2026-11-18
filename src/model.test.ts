@@ -14,6 +14,7 @@ const branch = (over: Partial<Branch> = {}): Branch => ({
   ahead: 2,
   behind: 3,
   committedAt: NOW - DAY,
+  lastSubject: "Add the thing",
   current: false,
   otherWorktree: "",
   merged: false,
@@ -73,14 +74,16 @@ test("describe and age", () => {
 
 test("parsers read for-each-ref, stash list and rev-list output", () => {
   const refs = parseRefs(
-    "main\0aaa\0origin/main\0\x001700000000\0*\0/repo\n" + "old\0bbb\0origin/old\0[gone]\x001600000000\0 \0\n" + "wip\0ccc\0origin/wip\0[ahead 2, behind 1]\x001650000000\0 \0/other\n",
+    "main\0aaa\0origin/main\0\x001700000000\0*\0/repo\0Release 1.2\n" +
+      "old\0bbb\0origin/old\0[gone]\x001600000000\0 \0\0Fix: a, b and c\n" +
+      "wip\0ccc\0origin/wip\0[ahead 2, behind 1]\x001650000000\0 \0/other\0\n",
   );
   assert.deepEqual(
-    refs.map((r) => [r.name, r.current, r.upstreamGone, r.worktree, r.committedAt]),
+    refs.map((r) => [r.name, r.current, r.upstreamGone, r.worktree, r.committedAt, r.lastSubject]),
     [
-      ["main", true, false, "/repo", 1700000000],
-      ["old", false, true, "", 1600000000],
-      ["wip", false, false, "/other", 1650000000],
+      ["main", true, false, "/repo", 1700000000, "Release 1.2"],
+      ["old", false, true, "", 1600000000, "Fix: a, b and c"],
+      ["wip", false, false, "/other", 1650000000, ""],
     ],
   );
   assert.deepEqual([...parseStashes("WIP on wip: 1 x\nOn wip: notes\nOn feat/a: y\n\n")], [["wip", 2], ["feat/a", 1]]);

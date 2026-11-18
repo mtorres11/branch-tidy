@@ -259,8 +259,8 @@
 
   function facts(b) {
     const out = [
-      h("span", { class: "num" }, h("span", { class: "behind-t" }, `↓${b.behind}`), " ", h("span", { class: "ahead-t" }, `↑${b.ahead}`)),
-      h("span", null, age(data.now - b.committedAt)),
+      h("span", { class: "num ahead-t", title: `Commits on this branch that are not on ${data.base}` }, `↑ ${plural(b.ahead, "commit")}`),
+      h("span", { class: "num behind-t", title: `Commits on ${data.base} this branch doesn't have` }, `↓ ${b.behind} behind`),
     ];
     if (b.unpushed) out.push(h("span", { class: "warn" }, `⇡ ${b.unpushed} not pushed`));
     if (!b.upstream && b.ahead) out.push(h("span", null, "no upstream"));
@@ -271,8 +271,18 @@
     return out;
   }
 
+  /** The branch's latest commit: short hash, subject and age. */
+  const latest = (b) =>
+    h(
+      "div",
+      { class: "latest", title: `Latest commit ${b.sha.slice(0, 8)}: ${b.lastSubject}` },
+      h("code", null, b.sha.slice(0, 7)),
+      h("span", { class: "subj" }, b.lastSubject || "(no message)"),
+      h("span", { class: "when" }, age(data.now - b.committedAt)),
+    );
+
+  /** The branch's own commits as tree rows under it (asked for once, then cached by tip). */
   function commitsPanel(b) {
-    if (!b.ahead) return h("div", { class: "commits muted" }, `No commits that aren't on ${data.base}.`);
     const key = `${b.name}@${b.sha}`;
     const list = commits.get(key);
     if (!list) {
@@ -283,15 +293,19 @@
     return h(
       "ol",
       { class: "commits" },
-      list.map((c) => h("li", { title: `${c.subject}\n${c.author}, ${c.when}` }, h("code", null, c.hash), h("span", { class: "subj" }, c.subject), h("span", { class: "when" }, c.when))),
+      list.map((c) =>
+        h("li", { title: `${c.subject}\n${c.author}, ${c.when}` }, h("span", { class: "node" }), h("code", null, c.hash), h("span", { class: "subj" }, c.subject), h("span", { class: "when" }, c.when)),
+      ),
       b.ahead > list.length ? h("li", { class: "muted" }, `…and ${b.ahead - list.length} more`) : null,
     );
   }
 
   function row(b) {
     const s = statusOf(b);
-    const open = ui.open.has(b.name);
+    const expandable = b.ahead > 0;
+    const open = expandable && ui.open.has(b.name);
     const toggle = () => {
+      if (!expandable) return;
       if (open) ui.open.delete(b.name);
       else ui.open.add(b.name);
       save();
@@ -305,18 +319,20 @@
         {
           class: "row",
           tabindex: "0",
-          role: "button",
-          "aria-expanded": String(open),
+          role: "treeitem",
+          "aria-expanded": expandable ? String(open) : undefined,
           title: `${b.name}\n${b.upstream ? `upstream ${b.upstream}` : "no upstream"} · ${b.sha.slice(0, 8)}`,
           onclick: toggle,
           onkeydown: (e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), toggle()),
         },
+        h("span", { class: "twisty" }, expandable ? (open ? "▾" : "▸") : ""),
         h("span", { class: "dot" }),
         h(
           "div",
           { class: "main" },
           h("div", { class: "line1" }, h("span", { class: "name" }, b.name), b.current ? h("span", { class: "badge" }, "current") : null, h("span", { class: "chip" }, s.label)),
           h("div", { class: "line2" }, divergence(b), facts(b)),
+          latest(b),
         ),
         moreButton(`Actions for ${b.name}`, () => branchMenu(b)),
       ),

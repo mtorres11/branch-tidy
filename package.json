@@ -2,7 +2,7 @@
   "name": "branch-tidy",
   "displayName": "Branch Tidy",
   "description": "See which local git branches are merged, unpushed, outdated or stale, clean them up safely and update them all from main.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "mtorres11",
   "license": "MIT",
   "author": {

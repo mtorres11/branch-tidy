@@ -69,6 +69,7 @@ test("reads merged, squash-merged, remote-gone and local-only branches", async (
   assert.deepEqual([local.upstream, local.ahead, local.squashMerged, local.unpushed], ["", 1, false, 1]);
   assert.equal(merged.unpushed, 0, "merged commits are on origin/main");
   assert.equal((await find("main")).current, true);
+  assert.equal(local.lastSubject, "l.txt", "latest commit subject comes from for-each-ref");
   assert.deepEqual((await repo.commits(local.sha, BASE)).map((c) => c.subject), ["l.txt"]);
 });
 
