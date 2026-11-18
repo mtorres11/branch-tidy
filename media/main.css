@@ -1,0 +1,121 @@
+/* Branch Tidy: VS Code theme variables only, so it follows light, dark and high-contrast themes.
+   Each branch sets --c (its status colour) from the host's status table. */
+:root { --gap: 6px; --row-pad: 8px; --mono: var(--vscode-editor-font-family, ui-monospace, Menlo, monospace); }
+html, body { margin: 0; padding: 0; }
+body {
+  color: var(--vscode-foreground);
+  background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+.muted { color: var(--vscode-descriptionForeground); }
+
+/* ---------- top: summary + actions, filters, status chips ---------- */
+.top {
+  position: sticky; top: 0; z-index: 2; display: grid; gap: var(--gap);
+  padding: var(--row-pad) var(--row-pad) var(--gap);
+  background: var(--vscode-sideBar-background, var(--vscode-editor-background));
+  border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border, var(--vscode-panel-border));
+}
+.bar { display: flex; align-items: center; gap: var(--gap); flex-wrap: wrap; justify-content: space-between; }
+.summary { color: var(--vscode-descriptionForeground); font-size: 0.92em; min-width: 0; }
+.summary b { color: var(--vscode-foreground); font-family: var(--mono); font-weight: 600; }
+.buttons { display: flex; gap: 4px; align-items: center; }
+.btn {
+  border: 1px solid var(--vscode-button-border, transparent); border-radius: 2px; padding: 2px 8px; cursor: pointer;
+  background: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground); white-space: nowrap;
+}
+.btn:hover { background: var(--vscode-button-secondaryHoverBackground); }
+.btn.primary { background: var(--vscode-button-background); color: var(--vscode-button-foreground); }
+.btn.primary:hover { background: var(--vscode-button-hoverBackground); }
+.btn.ready { color: var(--vscode-charts-green); }
+.filters { display: flex; gap: var(--gap); }
+.search, .sort {
+  background: var(--vscode-input-background); color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border, transparent); border-radius: 2px; padding: 2px 6px; font: inherit; min-width: 0;
+}
+.search { flex: 1; }
+.search::placeholder { color: var(--vscode-input-placeholderForeground); }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* --c comes from the row (or the filter chip itself); "All" has none and falls back to grey. */
+.chip {
+  --chip: var(--c, var(--vscode-descriptionForeground));
+  display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  font-size: 0.82em; font-weight: 600; line-height: 1.5; padding: 0 7px; border-radius: 9px;
+  color: var(--chip); background: color-mix(in srgb, var(--chip) 16%, transparent); border: 1px solid transparent;
+}
+.chip.filter { cursor: pointer; font-weight: 500; }
+.chip.filter:hover { border-color: color-mix(in srgb, var(--chip) 50%, transparent); }
+.chip.filter.on { border-color: var(--chip); background: color-mix(in srgb, var(--chip) 28%, transparent); }
+.chip .n { opacity: 0.8; font-variant-numeric: tabular-nums; }
+
+/* ---------- groups and rows ---------- */
+.ghead {
+  display: flex; align-items: center; gap: 6px; width: 100%; padding: 6px var(--row-pad) 4px; border: 0; background: none; cursor: pointer;
+  font-size: 0.78em; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--vscode-descriptionForeground);
+}
+.ghead .caret { width: 10px; }
+.ghead .n { font-weight: 500; }
+.branch { border-left: 2px solid transparent; }
+.branch.current { border-left-color: var(--vscode-focusBorder); }
+.row { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 0 8px; align-items: start; padding: 5px var(--row-pad) 5px 10px; cursor: pointer; }
+.row:hover, .branch.open > .row { background: var(--vscode-list-hoverBackground); }
+.dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; background: var(--c); }
+.main { min-width: 0; display: grid; gap: 2px; }
+.line1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.name { font-family: var(--mono); font-size: 0.95em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.branch.current .name { font-weight: 600; }
+.badge {
+  font-size: 0.75em; padding: 0 5px; border-radius: 3px; white-space: nowrap;
+  color: var(--vscode-badge-foreground); background: var(--vscode-badge-background);
+}
+.line1 .chip { margin-left: auto; }
+.line2 { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 0.85em; color: var(--vscode-descriptionForeground); }
+.num { font-variant-numeric: tabular-nums; }
+.behind-t { color: var(--vscode-charts-yellow); }
+.ahead-t { color: var(--vscode-charts-blue); }
+.warn { color: var(--vscode-charts-red); font-weight: 600; }
+
+/* behind | ahead bars around a centre tick */
+.div { display: inline-flex; align-items: center; height: 10px; }
+.side { display: inline-flex; width: 36px; }
+.side.left { justify-content: flex-end; }
+.seg { height: 5px; width: var(--w); border-radius: 2px; }
+.seg.behind { background: var(--vscode-charts-yellow); }
+.seg.ahead { background: var(--vscode-charts-blue); }
+.mid { width: 1px; height: 10px; margin: 0 1px; background: var(--vscode-descriptionForeground); opacity: 0.6; }
+
+.more {
+  border: 0; background: none; cursor: pointer; padding: 0 5px; border-radius: 3px; line-height: 18px; font-size: 1.15em;
+  color: var(--vscode-icon-foreground, var(--vscode-foreground)); opacity: 0.55;
+}
+.row:hover .more, .more:focus-visible, .more.active, .top .more { opacity: 1; }
+.more:hover, .more.active { background: var(--vscode-toolbar-hoverBackground); }
+
+.commits { margin: 0; padding: 2px var(--row-pad) 8px 30px; list-style: none; display: grid; gap: 2px; font-size: 0.85em; }
+.commits li { display: flex; gap: 8px; min-width: 0; }
+.commits code { font-family: var(--mono); color: var(--vscode-textLink-foreground); flex: none; }
+.commits .subj { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.commits .when { color: var(--vscode-descriptionForeground); flex: none; }
+div.commits { display: block; }
+.empty { padding: 16px var(--row-pad); }
+
+/* ---------- floating menu ---------- */
+.menu {
+  position: fixed; z-index: 10; min-width: 170px; padding: 4px 0; border-radius: 4px;
+  background: var(--vscode-menu-background, var(--vscode-editorWidget-background));
+  color: var(--vscode-menu-foreground, var(--vscode-foreground));
+  border: 1px solid var(--vscode-menu-border, var(--vscode-widget-border, transparent));
+  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgb(0 0 0 / 0.35));
+}
+.menu .item { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: none; padding: 4px 12px; text-align: left; cursor: pointer; }
+.menu .item:hover, .menu .item:focus-visible {
+  background: var(--vscode-menu-selectionBackground, var(--vscode-list-activeSelectionBackground));
+  color: var(--vscode-menu-selectionForeground, var(--vscode-list-activeSelectionForeground)); outline: none;
+}
+.menu .item.danger { color: var(--vscode-errorForeground); }
+.menu .ico { width: 14px; text-align: center; opacity: 0.85; }
+.menu .sep { height: 1px; margin: 4px 0; background: var(--vscode-menu-separatorBackground, var(--vscode-panel-border)); }

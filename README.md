@@ -7,23 +7,27 @@ Secondary Side Bar** to keep it on the right.
 Created by **Marco Torres C** · <https://github.com/mtorres11/branch-tidy>
 
 ```
-BRANCHES                         ⟳ update all · 🗑 clean up · ☁ fetch · ↻
-7 local branches · base origin/main
-▾ Safe to delete (2)
-   fix/null-ticket        merged · ↑0 ↓14 · 9 d
-   feature/report-html    merged · ↑4 ↓31 · 12 d · squash-merged
-▾ Needs attention (3)
- ✓ stage-0-1              unpushed · ↑3 ↓0 · 2 h · 3 not pushed · no upstream
-   spike/replay-costs     stale · ↑3 ↓48 · 41 d · 1 not pushed · 1 stash
-   feature/gates          outdated · ↑2 ↓37 · 6 d
-▾ In progress (2)
-   feature/websearch-v3   in progress · ↑6 ↓2 · 1 d
-   main                   protected · ↑0 ↓0 · 3 h
+9 branches · base origin/main
+[⇣ Update all] [🗑 Clean up 2]  ⋯
+[Filter branches        ] [Last commit ▾]
+(All 9) (merged 3) (unpushed 2) (outdated 1) (stale 1) (in progress 1)
+▾ SAFE TO DELETE 3
+ ● fix/MDCPT-111902-null-ticket            [merged]  ⋯
+   ▬▬|      ↓14 ↑0 · 9 d
+▾ NEEDS ATTENTION 4
+ ● stage-0-1  current                    [unpushed]  ⋯
+      |▬▬   ↓0 ↑4 · 2 h · ⇡ 3 not pushed
+ ● spike/replay-costs                    [unpushed]  ⋯
+   ▬▬|▬▬    ↓48 ↑3 · 41 d · no upstream · ≡ 1 stash
 ```
 
-Each line: **status · commits ahead ↑ / behind ↓ the base · age of the last commit**, plus
-how many commits are **not pushed** to any remote, stashes made on the branch, and whether it
-is open in another worktree. Expand a branch to see its own commits; hover for details.
+Each branch shows a coloured status dot and chip, a **behind | ahead** bar against the base
+(yellow behind, blue ahead), the age of the last commit, how many commits are **not pushed** to
+any remote, stashes made on the branch, and whether it is open in another worktree. Click a
+branch to see its own commits; hover for its upstream and last commit.
+
+At the top: a search box, a sort (last commit, name, most behind, most ahead, most unpushed) and
+status chips with counts; click a chip to show only that status. Filters are kept while you work.
 
 ## Statuses
 
@@ -39,10 +43,11 @@ is open in another worktree. Expand a branch to see its own commits; hover for d
 
 ## Actions
 
-**Per branch** (right-click, or the icons on hover): Checkout · Update from base · Push · Rename… ·
-Copy name · Delete…. Only the actions that make sense for that branch are shown.
+**Per branch** (the **⋯** on the right of each branch): Checkout · Update from base · Push ·
+Rename… · Copy name · Delete…. Only the actions that make sense for that branch are shown.
 
-**For all branches** (view title bar):
+**For all branches** (top of the panel; the **⋯** there also has Refresh, Fetch & prune, Expand all,
+Collapse all, Clear filters and Settings):
 
 - **Update all**: fetches, then merges the base into every branch that is behind it and not merged.
   Nothing is checked out: the merge happens in memory (`git merge-tree`). A branch with conflicts
@@ -78,7 +83,7 @@ Needs git 2.38 or later (for `git merge-tree --write-tree`).
 
 `npm install`, `npm run watch`, then **F5**. `npm test` runs the model tests and the git tests,
 which use throw-away repositories. [src/model.ts](src/model.ts) holds every rule (statuses and
-which actions each branch gets); [src/repo.ts](src/repo.ts) holds every git command.
+which actions each branch gets); [src/repo.ts](src/repo.ts) holds every git command; [media/main.js](media/main.js) draws the panel from the state the extension sends.
 
 ## License
 

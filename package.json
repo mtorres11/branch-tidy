@@ -2,7 +2,7 @@
   "name": "branch-tidy",
   "displayName": "Branch Tidy",
   "description": "See which local git branches are merged, unpushed, outdated or stale, clean them up safely and update them all from main.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "publisher": "mtorres11",
   "license": "MIT",
   "author": {
@@ -47,23 +47,18 @@
   ],
   "main": "./out/extension.js",
   "activationEvents": [
-    "workspaceContains:.git"
+    "onStartupFinished"
   ],
   "contributes": {
     "views": {
       "branchTidy": [
         {
+          "type": "webview",
           "id": "branchTidy.branches",
           "name": "Branches"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "branchTidy.branches",
-        "contents": "Open a folder that is a git repository to see its branches."
-      }
-    ],
     "commands": [
       {
         "command": "branchTidy.refresh",
@@ -90,139 +85,12 @@
         "icon": "$(repo-sync)"
       },
       {
-        "command": "branchTidy.checkout",
-        "title": "Checkout",
+        "command": "branchTidy.settings",
+        "title": "Settings",
         "category": "Branch Tidy",
-        "icon": "$(arrow-right)"
-      },
-      {
-        "command": "branchTidy.update",
-        "title": "Update from Base (merge)",
-        "category": "Branch Tidy",
-        "icon": "$(repo-sync)"
-      },
-      {
-        "command": "branchTidy.push",
-        "title": "Push",
-        "category": "Branch Tidy",
-        "icon": "$(cloud-upload)"
-      },
-      {
-        "command": "branchTidy.rename",
-        "title": "Rename…",
-        "category": "Branch Tidy",
-        "icon": "$(edit)"
-      },
-      {
-        "command": "branchTidy.copy",
-        "title": "Copy Name",
-        "category": "Branch Tidy",
-        "icon": "$(copy)"
-      },
-      {
-        "command": "branchTidy.delete",
-        "title": "Delete…",
-        "category": "Branch Tidy",
-        "icon": "$(trash)"
+        "icon": "$(gear)"
       }
     ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "branchTidy.updateAll",
-          "when": "view == branchTidy.branches",
-          "group": "navigation@1"
-        },
-        {
-          "command": "branchTidy.cleanUp",
-          "when": "view == branchTidy.branches",
-          "group": "navigation@2"
-        },
-        {
-          "command": "branchTidy.fetch",
-          "when": "view == branchTidy.branches",
-          "group": "navigation@3"
-        },
-        {
-          "command": "branchTidy.refresh",
-          "when": "view == branchTidy.branches",
-          "group": "navigation@4"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "branchTidy.checkout",
-          "when": "view == branchTidy.branches && viewItem =~ /;checkout;/",
-          "group": "inline@1"
-        },
-        {
-          "command": "branchTidy.update",
-          "when": "view == branchTidy.branches && viewItem =~ /;update;/",
-          "group": "inline@2"
-        },
-        {
-          "command": "branchTidy.delete",
-          "when": "view == branchTidy.branches && viewItem =~ /;delete;/",
-          "group": "inline@3"
-        },
-        {
-          "command": "branchTidy.checkout",
-          "when": "view == branchTidy.branches && viewItem =~ /;checkout;/",
-          "group": "1_branch@0"
-        },
-        {
-          "command": "branchTidy.update",
-          "when": "view == branchTidy.branches && viewItem =~ /;update;/",
-          "group": "1_branch@1"
-        },
-        {
-          "command": "branchTidy.push",
-          "when": "view == branchTidy.branches && viewItem =~ /;push;/",
-          "group": "2_edit@2"
-        },
-        {
-          "command": "branchTidy.rename",
-          "when": "view == branchTidy.branches && viewItem =~ /;rename;/",
-          "group": "2_edit@3"
-        },
-        {
-          "command": "branchTidy.copy",
-          "when": "view == branchTidy.branches && viewItem =~ /;copy;/",
-          "group": "2_edit@4"
-        },
-        {
-          "command": "branchTidy.delete",
-          "when": "view == branchTidy.branches && viewItem =~ /;delete;/",
-          "group": "3_delete@5"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "branchTidy.checkout",
-          "when": "false"
-        },
-        {
-          "command": "branchTidy.update",
-          "when": "false"
-        },
-        {
-          "command": "branchTidy.push",
-          "when": "false"
-        },
-        {
-          "command": "branchTidy.rename",
-          "when": "false"
-        },
-        {
-          "command": "branchTidy.copy",
-          "when": "false"
-        },
-        {
-          "command": "branchTidy.delete",
-          "when": "false"
-        }
-      ]
-    },
     "configuration": {
       "title": "Branch Tidy",
       "properties": {
@@ -271,7 +139,7 @@
   "scripts": {
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "test": "tsc -p ./ && node --test \"out/*.test.js\"",
+    "test": "tsc -p ./ && node --check media/main.js && node --test \"out/*.test.js\"",
     "package": "npm run compile && vsce package --no-dependencies -o branch-tidy.vsix"
   },
   "devDependencies": {

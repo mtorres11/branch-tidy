@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Action, actionsOf, Branch, MergeResult, mergeSummary, Rules, STATUSES, statusOf, updateTargets } from "./model";
 import { Repo } from "./repo";
-import { BranchNode, BranchTree } from "./tree";
+import { BranchNode, BranchView, FromView, Snapshot } from "./view";
 
 const VIEW = "branchTidy.branches";
 
@@ -11,10 +11,26 @@ class App {
   private timer?: NodeJS.Timeout;
 
   constructor(
-    private readonly tree: BranchTree,
-    private readonly view: vscode.TreeView<unknown>,
+    private readonly view: BranchView,
     private readonly statusItem: vscode.StatusBarItem,
   ) {}
+
+  /** A click in the page. Branch actions are re-checked against the model before they run. */
+  handle(m: FromView): unknown {
+    if (m.type === "ready") return this.view.post();
+    if (m.type === "commits") return this.sendCommits(m.name);
+    if (m.type === "action") {
+      const node = this.snap.nodes.find((n) => n.branch.name === m.name);
+      return node && actionsOf(node.branch, node.status).includes(m.action) ? BRANCH_ACTIONS[m.action](this, node) : undefined;
+    }
+    return APP_COMMANDS[m.type]?.(this);
+  }
+
+  private async sendCommits(name: string): Promise<void> {
+    const { repo, base, nodes } = this.snap;
+    const node = nodes.find((n) => n.branch.name === name);
+    if (repo && base && node) this.view.postCommits(name, await repo.commits(node.branch.sha, base));
+  }
 
   /** Re-reads every branch. Called on start, on git changes and after every action. */
   async refresh(): Promise<void> {
@@ -37,7 +53,7 @@ class App {
       };
       const branches = await repo.branches(base);
       const nodes = branches
-        .map((branch) => ({ kind: "branch" as const, branch, status: statusOf(branch, rules) }))
+        .map((branch) => ({ branch, status: statusOf(branch, rules) }))
         .sort((a, b) => b.branch.committedAt - a.branch.committedAt);
       this.show({ repo, base, rules, nodes });
     } catch (err) {
@@ -45,10 +61,9 @@ class App {
     }
   }
 
-  private show(s: Parameters<BranchTree["show"]>[0]): void {
-    this.tree.show(s);
+  private show(s: Snapshot): void {
+    this.view.show(s);
     const clean = this.cleanable().filter((n) => STATUSES[n.status].cleanup === "yes").length;
-    this.view.message = s.base ? `${s.nodes.length} local branches · base ${s.base}` : undefined;
     this.statusItem.text = `$(git-branch) ${clean} to clean`;
     this.statusItem.tooltip = "Branch Tidy: delete merged branches";
     if (clean) this.statusItem.show();
@@ -79,7 +94,7 @@ class App {
   }
 
   private get snap() {
-    return this.tree.snapshot;
+    return this.view.snapshot;
   }
 
   /** Branches Clean up may offer (status allows it and the branch can be deleted). */
@@ -195,7 +210,7 @@ class App {
   }
 }
 
-/** One handler per branch menu item; the menus in package.json decide when each is shown. */
+/** One handler per branch menu item; the model's actionsOf() decides when each is offered. */
 const BRANCH_ACTIONS: Record<Action, (app: App, n: BranchNode) => Promise<void>> = {
   checkout: (app, n) => app.task(`Checking out ${n.branch.name}`, (r) => r.checkout(n.branch.name)),
   update: (app, n) => app.update([n.branch.name]),
@@ -208,23 +223,26 @@ const BRANCH_ACTIONS: Record<Action, (app: App, n: BranchNode) => Promise<void>>
   delete: (app, n) => app.deleteOne(n),
 };
 
+/** Whole-repo actions: the page's top bar and the Command Palette ("branchTidy.<id>") share them. */
+const APP_COMMANDS: Record<string, ((app: App) => unknown) | undefined> = {
+  refresh: (app) => app.refresh(),
+  fetch: (app) => app.task("Fetching", (r) => r.fetch()),
+  cleanUp: (app) => app.cleanUp(),
+  updateAll: (app) => app.update("all"),
+  settings: () => vscode.commands.executeCommand("workbench.action.openSettings", "branchTidy"),
+};
+
 export function activate(context: vscode.ExtensionContext): void {
-  const tree = new BranchTree();
-  const view = vscode.window.createTreeView(VIEW, { treeDataProvider: tree, showCollapseAll: true });
+  const view: BranchView = new BranchView(context.extensionUri, (m): unknown => app.handle(m));
   const statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 0);
   statusItem.command = "branchTidy.cleanUp";
-  const app = new App(tree, view, statusItem);
-  const command = (id: string, run: (...args: never[]) => unknown) => vscode.commands.registerCommand(`branchTidy.${id}`, run);
+  const app: App = new App(view, statusItem);
 
   context.subscriptions.push(
-    view,
+    vscode.window.registerWebviewViewProvider(VIEW, view, { webviewOptions: { retainContextWhenHidden: true } }),
     statusItem,
     app,
-    command("refresh", () => app.refresh()),
-    command("fetch", () => app.task("Fetching", (r) => r.fetch())),
-    command("cleanUp", () => app.cleanUp()),
-    command("updateAll", () => app.update("all")),
-    ...Object.entries(BRANCH_ACTIONS).map(([id, run]) => command(id, (n: BranchNode) => (n?.kind === "branch" ? run(app, n) : undefined))),
+    ...Object.entries(APP_COMMANDS).map(([id, run]) => vscode.commands.registerCommand(`branchTidy.${id}`, () => run?.(app))),
     vscode.workspace.onDidChangeConfiguration((e) => e.affectsConfiguration("branchTidy") && app.refresh()),
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
       app.reset();
